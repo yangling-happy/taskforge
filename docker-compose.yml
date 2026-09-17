@@ -26,5 +26,51 @@ services:
       timeout: 3s
       retries: 10
 
+  scheduler:
+    build: .
+    container_name: taskforge-scheduler
+    command: java -jar /app/scheduler.jar
+    depends_on:
+      mysql: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/taskforge?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Asia/Shanghai
+      DB_USER: root
+      DB_PASS: root
+      REDIS_HOST: redis
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  worker-a:
+    build: .
+    container_name: taskforge-worker-a
+    command: java -jar /app/worker.jar
+    depends_on:
+      mysql: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      scheduler: { condition: service_healthy }
+    environment:
+      REDIS_HOST: redis
+      SCHEDULER_URL: http://scheduler:8080
+      WORKER_ID: worker-A
+
+  worker-b:
+    build: .
+    container_name: taskforge-worker-b
+    command: java -jar /app/worker.jar
+    depends_on:
+      mysql: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      scheduler: { condition: service_healthy }
+    environment:
+      REDIS_HOST: redis
+      SCHEDULER_URL: http://scheduler:8080
+      WORKER_ID: worker-B
+
 volumes:
   mysql-data:
