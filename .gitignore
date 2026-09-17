@@ -1,0 +1,7 @@
+.trae/
+.gradle/
+build/
+out/
+.idea/
+*.iml
+*.log
