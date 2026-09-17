@@ -1,0 +1,18 @@
+server:
+  port: 0
+
+spring:
+  application:
+    name: taskforge-worker
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+worker:
+  id: ${WORKER_ID:worker-local}
+  scheduler-url: ${SCHEDULER_URL:http://localhost:8080}
+
+logging:
+  level:
+    com.taskforge: debug
